@@ -1,0 +1,34 @@
+
+# Use golang v1.11 as a base image
+FROM golang:1.11 as builder
+
+# Add maintainer info
+LABEL maintainer="shajalahamedcse@gmail.com"
+
+# Set present working directory inside the container
+WORKDIR $GOPATH/src/github.com/shajalahamedcse/goDocker
+
+# Copy everything from host directory to the PWD(Present Working Directory) inside the container
+COPY . .
+
+# go [command] ./...
+# Here ./ tells to start from the current folder, ... tells to go down recursively.
+# Download all dependency for golang
+RUN go get -d -v ./...
+
+# Build the Go app
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /go/bin/goDocker .
+
+######## Start a new stage from scratch #######
+FROM alpine:latest  
+
+RUN apk --no-cache add ca-certificates
+
+WORKDIR /root/
+
+# Copy the Pre-built binary file from the previous stage
+COPY --from=builder /go/bin/goDocker .
+
+EXPOSE 8080
+
+CMD ["./goDocker"] 

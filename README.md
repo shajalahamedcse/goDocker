@@ -224,3 +224,36 @@ Now if we have to run the image. Notice that how we mount a directory of the Hos
 We can now access our application’s logs from the ~/serverLogs directory 
     $ cd ~/serverLogs
     $ tail -200f server.log
+
+
+### Multi-stage builds to build an optimized Docker image 
+
+ If we type `docker image ls`, we can see the memory size of all the images -
+
+    $ docker image ls
+    REPOSITORY                                TAG                 IMAGE ID            CREATED             SIZE
+    golang                                    1.11                69a024a6ecf5        4 weeks ago         757MB
+    godockervolume                            latest              6f3f9c61594b        20 minutes ago      765MB
+    godocker                                  latest              9112703eee7d        2 hours ago         764MB
+    shajalahamedcse/godocker                  latest              9c496005ce54        2 hours ago         764MB
+    mongotransaction_api                      latest              eeeece788cde        5 hours ago         757MB
+
+The `golang:1.11` image that we’re using as our base is `757MB`, and our application memory size is `764MB`.
+
+As we want to reduce the size of the docker image, we have to use multi-stage building concept. The first stage of the multi-stage build will use the golang:1.11 image to  build our application. In the second stage we will use a very lightweight Alpine linux image and will only contain the binary executable built by the first stage.
+
+This way, our final image will be very small because It won’t have all the Golang runtime. It will only contain the things needed to run the binary executable -
+
+Now we will build the image
+
+    $ docker build -t godockeroptimized -f Dockerfile.multistage .
+
+
+
+Now let’s see the size of the image -
+
+    $ docker image ls
+
+
+    REPOSITORY                                TAG                 IMAGE ID            CREATED              SIZE
+    godockeroptimized                         latest              54f27d86de29        11 seconds ago       13.1MB
