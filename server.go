@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 func main() {
@@ -19,12 +20,25 @@ func main() {
 	route := mux.NewRouter()
 
 	route.HandleFunc("/", healthCheckHandler)
+
 	// Create Server
 	srv := &http.Server{
 		Handler:      route,
 		Addr:         ":8080",
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
+	}
+
+	// Configure Logging
+	logFileLocation := os.Getenv("LOG_FILE_LOCATION")
+	if logFileLocation != "" {
+		log.SetOutput(&lumberjack.Logger{
+			Filename:   logFileLocation,
+			MaxSize:    500, //megabytes
+			MaxBackups: 3,
+			MaxAge:     28,   // Days
+			Compress:   true, // Disabled by default
+		})
 	}
 
 	// Start Server
