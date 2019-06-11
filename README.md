@@ -88,6 +88,15 @@ Let’s build and run our server locally.
     $ ./goDocker
     2018/12/22 19:33:54 Starting Server
 
+
+### Using Go Modules for dependency management
+
+If you’re using Go 1.11+, then you can use Go Modules for managing dependencies. Go Modules are enabled by default outside $GOPATH. But if your project is inside $GOPATH then you need to manually enable it by setting the following environment variable -
+
+    # Activate Go modules inside $GOPATH (Add this to your ~/.bash_profile or ~/.bashrc file)
+    export GO111MODULE=on
+
+
 ### Dockerfile for Sever
 
     # Use golang v1.11 as a base image
@@ -115,3 +124,37 @@ Let’s build and run our server locally.
 
     # Run the executable
     CMD ["goDocker"]
+
+
+### Building and Running the Docker image
+
+
+Now that we have written the Dockerfile , let’s build and run the docker image -
+
+#### Building the image
+
+    $ docker build -t godocker .
+
+We can list all the available images we built by typing the following command -
+
+    $ docker image ls
+
+
+#### Running the Docker image
+
+We can run the docker image using following command
+
+    $ docker run -d -p 8080:8080 godocker
+
+#### Finding Running containers
+
+    $ docker container ls
+
+#### Interacting with the server running inside the container
+
+    $ curl http://localhost:8080
+    It is working
+
+#### Stopping the container
+
+    $ docker container stop <CONTAINER ID>
